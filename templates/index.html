@@ -4,15 +4,14 @@
 
 {% block content %}
   <h2>Boards</h2>
-  <ul class="board-list">
+
+  <!-- Board Creation Form -->
+  {% include '_board_form.html' %}
+
+  <!-- Board List -->
+  <ul id="boards-container" class="board-list">
     {% for board in boards %}
-      <li>
-        <a href="/b/{{ board.name }}">/{{ board.name }}/ - {{ board.title }}</a>
-        <p>{{ board.description }}</p>
-        {% if board.anonymous_allowed %}
-          <span class="tag">Anonymous Posting Allowed</span>
-        {% endif %}
-      </li>
+      {% include '_board.html' %}
     {% endfor %}
   </ul>
 {% endblock %}

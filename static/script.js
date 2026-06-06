@@ -1,18 +1,17 @@
-// Toggle reply form visibility
-function toggleReplyForm(postId) {
-  const form = document.getElementById(`reply-form-${postId}`);
-  if (form) {
-    if (form.style.display === 'none') {
-      form.style.display = 'block';
-    } else {
-      form.style.display = 'none';
-    }
-  }
-}
-
-// Image preview for all forms (post and reply)
 document.addEventListener('DOMContentLoaded', function() {
-  // Image preview logic (does NOT trigger HTMX)
+  // Toggle reply form visibility
+  window.toggleReplyForm = function(postId) {
+    const form = document.getElementById(`reply-form-${postId}`);
+    if (form) {
+      if (form.style.display === 'none') {
+        form.style.display = 'block';
+      } else {
+        form.style.display = 'none';
+      }
+    }
+  };
+
+  // Image preview for all forms (post and reply)
   document.querySelectorAll('input[type="file"]').forEach(input => {
     input.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -35,8 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const postForm = document.getElementById('post-form');
   if (postForm) {
     postForm.addEventListener('htmx:afterRequest', function(evt) {
-      // Only reset if the request was a POST and successful
-      if (evt.detail.requestConfig.method === 'POST' && evt.detail.successful) {
+      if (evt.detail.successful && evt.target.id === 'post-form') {
         postForm.reset();
         const preview = postForm.querySelector('img');
         if (preview) preview.remove();
@@ -47,8 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Reset reply forms ONLY after successful submission
   document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
     form.addEventListener('htmx:afterRequest', function(evt) {
-      // Only reset if the request was a POST and successful
-      if (evt.detail.requestConfig.method === 'POST' && evt.detail.successful) {
+      if (evt.detail.successful) {
         form.reset();
         const preview = form.querySelector('img');
         if (preview) preview.remove();

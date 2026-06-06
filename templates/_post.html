@@ -29,13 +29,9 @@
   <!-- Replies Container -->
   <div id="replies-{{ post.id }}" class="replies">
     {% for reply in post.replies %}
-      <div class="post reply" id="post-{{ reply.id }}">
-        <p>{{ reply.content }}</p>
-        {% if reply.image_url %}
-          <img src="{{ reply.image_url }}" alt="Reply image" style="max-width: 200px; max-height: 200px;">
-        {% endif %}
-        <small>Posted on {{ reply.created_at.strftime('%Y-%m-%d %H:%M') }} by <span>Anonymous</span></small>
-      </div>
+      {% if reply.parent_id == post.id %}  <!-- Ensure this reply belongs to this post -->
+        {% include '_reply.html' %}
+      {% endif %}
     {% endfor %}
   </div>
 </div>

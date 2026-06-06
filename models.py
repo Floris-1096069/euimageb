@@ -23,7 +23,12 @@ class Post(db.Model):
     parent_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=True)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-    replies = db.relationship('Post', backref=db.backref('parent', remote_side=[id]))
+    replies = db.relationship(
+        'Post',
+        backref=db.backref('parent', remote_side=[id]),
+        lazy='dynamic',
+        cascade='all, delete-orphan'
+    )
 
     def __repr__(self):
         return f'<Post {self.id}>'

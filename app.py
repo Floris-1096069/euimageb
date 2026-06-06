@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 from config import Config
 from models import db, Board, Post
 import os
@@ -39,22 +39,23 @@ def create_post(board_name):
     image = request.files.get('image')
 
     image_url = None
-    if image:
+    if image and image.filename != '':
         filename = secure_filename(image.filename)
         image_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         image.save(image_path)
         image_url = f"/static/uploads/{filename}"
 
-    post = Post(
+    new_post = Post(
         board_id=board.id,
         content=content,
         image_url=image_url,
-        user_id=None
+        user_id=None  # Anonymous
     )
-    db.session.add(post)
+    db.session.add(new_post)
     db.session.commit()
 
-    return render_template('_post.html', post=post)
+    # Return the HTML for the new post, passing the board
+    return render_template('_post.html', post=new_post, board=board)
 
 @app.route('/api/posts/<int:post_id>', methods=['DELETE'])
 def delete_post(post_id):
@@ -67,7 +68,6 @@ def delete_post(post_id):
 def create_reply(board_name, parent_id):
     board = Board.query.filter_by(name=board_name).first_or_404()
     parent_post = Post.query.get_or_404(parent_id)
-
     content = request.form.get('content')
     image = request.files.get('image')
 
@@ -78,17 +78,36 @@ def create_reply(board_name, parent_id):
         image.save(image_path)
         image_url = f"/static/uploads/{filename}"
 
-    reply = Post(
+    new_reply = Post(
         board_id=board.id,
         content=content,
-        image_url=image_url,
+        image_url=image_url,  # Ensure this is set for the reply
         user_id=None,  # Anonymous
-        parent_id=parent_post.id  # This is a reply
+        parent_id=parent_post.id  # Ensure this is set
     )
-    db.session.add(reply)
+    db.session.add(new_reply)
     db.session.commit()
 
-    return render_template('_reply.html', post=reply)
+    # Return the HTML for the new reply
+    return render_template('_reply.html', post=new_reply)
+
+@app.route('/api/b/create', methods=['POST'])
+def create_board():
+    board_name = request.form.get('board_name')
+    board_description = request.form.get('board_description')
+
+    # Create the new board
+    new_board = Board(
+        name=board_name[0],
+        title=board_name,
+        description=board_description,
+        anonymous_allowed=False  # Default or set as needed
+    )
+    db.session.add(new_board)
+    db.session.commit()
+
+    # Return the HTML for the new board list item
+    return render_template('_board.html', board=new_board)
 
 if __name__ == '__main__':
     app.run(debug=True)

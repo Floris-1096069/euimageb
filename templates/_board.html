@@ -1,0 +1,7 @@
+<li>
+  <a href="/b/{{ board.name }}">/{{ board.name }}/ - {{ board.title }}</a>
+  <p>{{ board.description }}</p>
+  {% if board.anonymous_allowed %}
+    <span class="tag">Anonymous Posting Allowed</span>
+  {% endif %}
+</li>

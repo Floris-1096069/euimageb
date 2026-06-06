@@ -1,0 +1,22 @@
+<form
+    id="board-form"
+    hx-post="/api/b/create"
+    hx-swap-oob="true"
+    hx-target="#boards-container"
+    hx-swap="beforeend"
+    class="post-form"
+>
+    <textarea
+    name="board_name"
+    placeholder="Write your board name..."
+    required
+    rows="1"
+  ></textarea>
+  <textarea
+    name="board_description"
+    placeholder="Write your board description..."
+    required
+    rows="4"
+  ></textarea>
+  <button type="submit">create</button>
+</form>
