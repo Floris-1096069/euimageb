@@ -1,0 +1,41 @@
+<!-- templates/_post.html -->
+<div class="post" id="post-{{ post.id }}">
+  <p>{{ post.content }}</p>
+  {% if post.image_url %}
+    <img src="{{ post.image_url }}" alt="Post image" style="max-width: 300px; max-height: 300px;">
+  {% endif %}
+  <small>Posted on {{ post.created_at.strftime('%Y-%m-%d %H:%M') }} by <span>Anonymous</span></small>
+
+  <!-- Reply Button and Form -->
+  <div>
+    <button onclick="toggleReplyForm({{ post.id }})" class="reply-button">Reply</button>
+    <form
+      id="reply-form-{{ post.id }}"
+      hx-post="/api/b/{{ board.name }}/posts/{{ post.id }}/reply"
+      hx-target="#replies-{{ post.id }}"
+      hx-swap="beforeend"
+      enctype="multipart/form-data"
+      style="display: none;"
+    >
+      <textarea name="content" placeholder="Write your reply..." required rows="2"></textarea>
+      <br>
+      <input type="file" name="image" accept="image/*">
+      <br>
+      <button type="submit">Post Reply</button>
+      <button type="button" onclick="toggleReplyForm({{ post.id }})" class="cancel-button">Cancel</button>
+    </form>
+  </div>
+
+  <!-- Replies Container -->
+  <div id="replies-{{ post.id }}" class="replies">
+    {% for reply in post.replies %}
+      <div class="post reply" id="post-{{ reply.id }}">
+        <p>{{ reply.content }}</p>
+        {% if reply.image_url %}
+          <img src="{{ reply.image_url }}" alt="Reply image" style="max-width: 200px; max-height: 200px;">
+        {% endif %}
+        <small>Posted on {{ reply.created_at.strftime('%Y-%m-%d %H:%M') }} by <span>Anonymous</span></small>
+      </div>
+    {% endfor %}
+  </div>
+</div>

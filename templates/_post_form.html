@@ -1,0 +1,17 @@
+<form
+    id="post-form"
+    hx-post="/api/b/{{ board.name }}/posts"
+    hx-target="#posts-container"
+    hx-swap="beforeend"
+    enctype="multipart/form-data"
+    class="post-form"
+>
+  <textarea
+    name="content"
+    placeholder="Write your post..."
+    required
+    rows="4"
+  ></textarea>
+  <input type="file" name="image" accept="image/*">
+  <button type="submit">Post</button>
+</form>

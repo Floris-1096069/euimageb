@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Boards{% endblock %}
+
+{% block content %}
+  <h2>Boards</h2>
+  <ul class="board-list">
+    {% for board in boards %}
+      <li>
+        <a href="/b/{{ board.name }}">/{{ board.name }}/ - {{ board.title }}</a>
+        <p>{{ board.description }}</p>
+        {% if board.anonymous_allowed %}
+          <span class="tag">Anonymous Posting Allowed</span>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

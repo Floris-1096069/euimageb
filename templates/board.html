@@ -1,0 +1,14 @@
+<!-- templates/board.html -->
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>/{{ board.name }}/ - {{ board.title }}</h1>
+  <p>{{ board.description }}</p>
+
+  <div id="posts-container" hx-get="/api/b/{{ board.name }}/posts" hx-trigger="every 10s">
+    {% include '_posts.html' %}
+  </div>
+
+    <h2>Create a Post</h2>
+    {% include '_post_form.html' %}
+{% endblock %}
