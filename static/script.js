@@ -10,7 +10,7 @@ window.toggleReplyForm = function(postId) {
 };
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Image preview for all forms
+  //image preview for all forms
   document.querySelectorAll('input[type="file"]').forEach(input => {
     input.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Reset post form after successful submission
+  //reset post form after successful submission
   const postForm = document.getElementById('post-form');
   if (postForm) {
     postForm.addEventListener('htmx:afterRequest', function(evt) {
@@ -41,7 +41,15 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Reset reply forms after successful submission
+  //reset board form after succesful submission
+  document.addEventListener('htmx:afterRequest', function (evt){
+    if (evt.detail.successful && evt.target.id && evt.target.id.startsWith('board-form')) {
+      const form = evt.target;
+      form.reset()
+    }
+  })
+
+  //reset reply forms after successful submission
   document.addEventListener('htmx:afterRequest', function(evt) {
     if (evt.detail.successful && evt.target.id && evt.target.id.startsWith('reply-form-')) {
       const form = evt.target;

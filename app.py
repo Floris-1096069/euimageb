@@ -49,12 +49,11 @@ def create_post(board_name):
         board_id=board.id,
         content=content,
         image_url=image_url,
-        user_id=None  # Anonymous
+        user_id=None
     )
     db.session.add(new_post)
     db.session.commit()
 
-    # Return the HTML for the new post, passing the board
     return render_template('_post.html', post=new_post, board=board)
 
 @app.route('/api/posts/<int:post_id>', methods=['DELETE'])
@@ -81,14 +80,13 @@ def create_reply(board_name, parent_id):
     new_reply = Post(
         board_id=board.id,
         content=content,
-        image_url=image_url,  # Ensure this is set for the reply
-        user_id=None,  # Anonymous
-        parent_id=parent_post.id  # Ensure this is set
+        image_url=image_url,
+        user_id=None,
+        parent_id=parent_post.id
     )
     db.session.add(new_reply)
     db.session.commit()
 
-    # Return the HTML for the new reply
     return render_template('_reply.html', reply=new_reply)
 
 @app.route('/api/b/create', methods=['POST'])
@@ -96,17 +94,15 @@ def create_board():
     board_name = request.form.get('board_name')
     board_description = request.form.get('board_description')
 
-    # Create the new board
     new_board = Board(
         name=board_name[0],
         title=board_name,
         description=board_description,
-        anonymous_allowed=False  # Default or set as needed
+        anonymous_allowed=False
     )
     db.session.add(new_board)
     db.session.commit()
 
-    #return the HTML for the new board list item
     return render_template('_board.html', board=new_board)
 
 if __name__ == '__main__':
