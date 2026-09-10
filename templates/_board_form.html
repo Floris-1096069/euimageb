@@ -1,3 +1,4 @@
+<button onclick="toggleBoardForm()" class="reply-button">Create Board</button>
 <form
     id="board-form"
     hx-post="/api/b/create"
@@ -5,6 +6,7 @@
     hx-target="#boards-container"
     hx-swap="beforeend"
     class="post-form"
+    style="display: none;"
 >
     <textarea
     name="board_name"

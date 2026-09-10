@@ -9,6 +9,17 @@ window.toggleReplyForm = function(postId) {
   }
 };
 
+window.toggleBoardForm = function() {
+  const form = document.getElementById(`board-form`);
+  if (form) {
+    if (form.style.display === 'none') {
+      form.style.display = 'block';
+    } else {
+      form.style.display = 'none';
+    }
+  }
+};
+
 document.addEventListener('DOMContentLoaded', function() {
   //image preview for all forms
   document.querySelectorAll('input[type="file"]').forEach(input => {

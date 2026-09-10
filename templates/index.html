@@ -5,13 +5,10 @@
 {% block content %}
   <h2>Boards</h2>
 
-  <!-- Board Creation Form -->
-  {% include '_board_form.html' %}
-
-  <!-- Board List -->
   <ul id="boards-container" class="board-list">
     {% for board in boards %}
       {% include '_board.html' %}
     {% endfor %}
   </ul>
+    {% include '_board_form.html' %}
 {% endblock %}
