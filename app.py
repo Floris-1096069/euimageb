@@ -89,7 +89,7 @@ def create_reply(board_name, parent_id):
     db.session.commit()
 
     # Return the HTML for the new reply
-    return render_template('_reply.html', post=new_reply)
+    return render_template('_reply.html', reply=new_reply)
 
 @app.route('/api/b/create', methods=['POST'])
 def create_board():
@@ -106,7 +106,7 @@ def create_board():
     db.session.add(new_board)
     db.session.commit()
 
-    # Return the HTML for the new board list item
+    #return the HTML for the new board list item
     return render_template('_board.html', board=new_board)
 
 if __name__ == '__main__':

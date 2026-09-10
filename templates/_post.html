@@ -30,6 +30,7 @@
   <div id="replies-{{ post.id }}" class="replies">
     {% for reply in post.replies %}
       {% if reply.parent_id == post.id %}  <!-- Ensure this reply belongs to this post -->
+        {% set current_reply = reply %}
         {% include '_reply.html' %}
       {% endif %}
     {% endfor %}
