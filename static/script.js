@@ -1,17 +1,16 @@
-document.addEventListener('DOMContentLoaded', function() {
-  // Toggle reply form visibility
-  window.toggleReplyForm = function(postId) {
-    const form = document.getElementById(`reply-form-${postId}`);
-    if (form) {
-      if (form.style.display === 'none') {
-        form.style.display = 'block';
-      } else {
-        form.style.display = 'none';
-      }
+window.toggleReplyForm = function(postId) {
+  const form = document.getElementById(`reply-form-${postId}`);
+  if (form) {
+    if (form.style.display === 'none') {
+      form.style.display = 'block';
+    } else {
+      form.style.display = 'none';
     }
-  };
+  }
+};
 
-  // Image preview for all forms (post and reply)
+document.addEventListener('DOMContentLoaded', function() {
+  // Image preview for all forms
   document.querySelectorAll('input[type="file"]').forEach(input => {
     input.addEventListener('change', function(e) {
       const file = e.target.files[0];
@@ -30,7 +29,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Reset post form ONLY after successful submission
+  // Reset post form after successful submission
   const postForm = document.getElementById('post-form');
   if (postForm) {
     postForm.addEventListener('htmx:afterRequest', function(evt) {
@@ -42,15 +41,14 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Reset reply forms ONLY after successful submission
-  document.querySelectorAll('[id^="reply-form-"]').forEach(form => {
-    form.addEventListener('htmx:afterRequest', function(evt) {
-      if (evt.detail.successful) {
-        form.reset();
-        const preview = form.querySelector('img');
-        if (preview) preview.remove();
-        form.style.display = 'none';  // Hide after submission
-      }
-    });
+  // Reset reply forms after successful submission
+  document.addEventListener('htmx:afterRequest', function(evt) {
+    if (evt.detail.successful && evt.target.id && evt.target.id.startsWith('reply-form-')) {
+      const form = evt.target;
+      form.reset();
+      const preview = form.querySelector('img');
+      if (preview) preview.remove();
+      form.style.display = 'none';
+    }
   });
 });
