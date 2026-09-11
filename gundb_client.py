@@ -19,12 +19,11 @@ class GunDBClient:
         if not file or file.filename == '':
             return None
         try:
-            # Read file content and reset pointer for Flask
             file_content = file.read()
-            file.seek(0)  # Reset for Flask to reuse later
+            file.seek(0)
             response = requests.post(
                 f"{IPFS_API_URL}/add",
-                files={'file': (file.filename, file_content)},  # Use file_content
+                files={'file': (file.filename, file_content)},
                 timeout=10
             )
             if response.ok:
@@ -36,11 +35,10 @@ class GunDBClient:
             print(f"Error adding to IPFS: {e}")
             return None
 
-    # Replace _get_from_ipfs with this (if you use it elsewhere):
     def _get_from_ipfs(self, cid):
         """Fetch a file from IPFS using raw HTTP requests."""
         try:
-            response = requests.post(  # <-- Change from GET to POST
+            response = requests.post(
                 f"{IPFS_API_URL}/cat?arg={cid}",
                 timeout=10
             )
@@ -113,7 +111,7 @@ class GunDBClient:
             "description": description,
             "anonymous_allowed": anonymous_allowed,
             "created_at": int(time.time()),
-            "posts": {}  # Initialize empty posts
+            "posts": {}
         }
         try:
             requests.post(f"{GUN_URL}/boards/{name}", json=board_data, timeout=5)
@@ -137,15 +135,13 @@ class GunDBClient:
                 return []
             posts_data = response.json()
 
-            # Separate posts into parents and replies
             posts = []
-            replies_by_parent = {}  # {parent_id: [reply1, reply2, ...]}
+            replies_by_parent = {}
 
             for post_key, post_data in posts_data.items():
                 if not isinstance(post_data, dict):
                     continue
 
-                # Skip if filtering for a specific parent_id and this post doesn't match
                 if parent_id is not None and post_data.get('parent_id') != parent_id:
                     continue
 
@@ -158,23 +154,20 @@ class GunDBClient:
                     'parent_id': post_data.get('parent_id'),
                     'created_at': datetime.fromtimestamp(post_data.get('created_at', 0)),
                     'board': {'name': board_name},
-                    'replies': []  # Initialize empty replies list
+                    'replies': []
                 }
 
-                # If this post is a reply, add it to the replies_by_parent dict
+
                 if post['parent_id']:
                     if post['parent_id'] not in replies_by_parent:
                         replies_by_parent[post['parent_id']] = []
                     replies_by_parent[post['parent_id']].append(post)
                 else:
-                    # This is a top-level post
                     posts.append(post)
 
-            # Attach replies to their parent posts
             for post in posts:
                 post['replies'] = replies_by_parent.get(post['id'], [])
 
-            # Sort posts by created_at (newest first)
             posts.sort(key=lambda x: x.get('created_at') or 0, reverse=True)
             return posts
 
@@ -205,7 +198,7 @@ class GunDBClient:
                 'board_id': board_name,
                 'image_url': self._get_image_url(image_cid),
                 'board': {'name': board_name},
-                'created_at': datetime.fromtimestamp(post_data['created_at'])  # Override the integer
+                'created_at': datetime.fromtimestamp(post_data['created_at'])
             }
         except Exception as e:
             print(f"Error creating post: {e}")
@@ -221,11 +214,10 @@ class GunDBClient:
             "content": content,
             "image_cid": image_cid,
             "user_id": None,
-            "parent_id": parent_key,  # Mark this as a reply
+            "parent_id": parent_key,
             "created_at": int(time.time()),
         }
         try:
-            # Store the reply as a top-level post
             requests.post(
                 f"{GUN_URL}/boards/{board_name}/posts/{reply_key}",
                 json=reply_data,

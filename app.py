@@ -20,7 +20,6 @@ def ipfs_proxy(cid):
         data = gundb._get_from_ipfs(cid)
         if not data:
             return "File not found", 404
-        # Detect mimetype (simplified)
         if cid.endswith(('.png', '.jpg', '.jpeg', '.gif')):
             mimetype = f"image/{cid.split('.')[-1]}"
         else:
@@ -44,7 +43,7 @@ def view_board(board_name):
     board = gundb.get_board(board_name)
     if not board:
         return redirect(url_for('index'))
-    posts = gundb.get_posts(board_name, parent_id=None)  # Only top-level posts
+    posts = gundb.get_posts(board_name, parent_id=None)
     print("Posts with replies:", posts)
     return render_template('board.html', board=board, posts=posts)
 
