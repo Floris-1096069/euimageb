@@ -1,10 +1,11 @@
 const Gun = require('gun');
+const express = require('express');
+const app = express();
 
-const gun = Gun({
-    port: 8080,
-    peers: [],
-    file: 'data.json',
-    web: true
+app.use('/gun', Gun.serve);
+
+const server = app.listen(8080, () => {
+  console.log('GunDB server running on http://localhost:8080/gun');
 });
 
-console.log('GunDB running on port 8080');
+Gun({ web: server });
