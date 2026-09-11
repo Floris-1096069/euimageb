@@ -130,34 +130,54 @@ class GunDBClient:
         return f"/ipfs/{image_cid}"
 
     def get_posts(self, board_name, parent_id=None):
+        """Fetch all posts and group replies by parent_id."""
         try:
             response = requests.get(f"{GUN_URL}/boards/{board_name}/posts", timeout=5)
             if not response.ok:
                 return []
             posts_data = response.json()
-            print("DEBUG: Raw GunDB posts data:", posts_data)
+
+            # Separate posts into parents and replies
             posts = []
+            replies_by_parent = {}  # {parent_id: [reply1, reply2, ...]}
+
             for post_key, post_data in posts_data.items():
-                print("DEBUG: post_key:", post_key, "post_data:", post_data)
                 if not isinstance(post_data, dict):
                     continue
-                if parent_id is None and post_data.get('parent_id') is not None:
-                    continue
+
+                # Skip if filtering for a specific parent_id and this post doesn't match
                 if parent_id is not None and post_data.get('parent_id') != parent_id:
                     continue
+
                 post = {
                     'id': post_key,
                     'board_id': board_name,
-                    'content': post_data.get('content', ''),  # Ensure this is included
-                    'image_url': self._get_image_url(post_data.get('image_cid')),  # Reconstruct URL
+                    'content': post_data.get('content', ''),
+                    'image_url': self._get_image_url(post_data.get('image_cid')),
                     'user_id': post_data.get('user_id'),
                     'parent_id': post_data.get('parent_id'),
                     'created_at': datetime.fromtimestamp(post_data.get('created_at', 0)),
-                    'board': {'name': board_name}
+                    'board': {'name': board_name},
+                    'replies': []  # Initialize empty replies list
                 }
-                posts.append(post)
-            posts.sort(key=lambda x: x.get('created_at') or 0, reverse=True)  # Safe sort
+
+                # If this post is a reply, add it to the replies_by_parent dict
+                if post['parent_id']:
+                    if post['parent_id'] not in replies_by_parent:
+                        replies_by_parent[post['parent_id']] = []
+                    replies_by_parent[post['parent_id']].append(post)
+                else:
+                    # This is a top-level post
+                    posts.append(post)
+
+            # Attach replies to their parent posts
+            for post in posts:
+                post['replies'] = replies_by_parent.get(post['id'], [])
+
+            # Sort posts by created_at (newest first)
+            posts.sort(key=lambda x: x.get('created_at') or 0, reverse=True)
             return posts
+
         except Exception as e:
             print(f"Error getting posts: {e}")
             return []
@@ -191,9 +211,8 @@ class GunDBClient:
             print(f"Error creating post: {e}")
             return None
 
-
     def create_reply(self, board_name, parent_key, content, image_file=None):
-        """Create a reply to a post."""
+        """Create a reply as a top-level post with a parent_id field."""
         image_cid = None
         if image_file and image_file.filename != '':
             image_cid = self._add_to_ipfs(image_file)
@@ -202,13 +221,13 @@ class GunDBClient:
             "content": content,
             "image_cid": image_cid,
             "user_id": None,
-            "parent_id": parent_key,
+            "parent_id": parent_key,  # Mark this as a reply
             "created_at": int(time.time()),
-            "replies": {}
         }
         try:
+            # Store the reply as a top-level post
             requests.post(
-                f"{GUN_URL}/boards/{board_name}/posts/{parent_key}/replies/{reply_key}",
+                f"{GUN_URL}/boards/{board_name}/posts/{reply_key}",
                 json=reply_data,
                 timeout=5
             )
@@ -218,7 +237,7 @@ class GunDBClient:
                 'board_id': board_name,
                 'image_url': self._get_image_url(image_cid),
                 'board': {'name': board_name},
-                'created_at': datetime.fromtimestamp(reply_data['created_at'])  # Override the integer
+                'created_at': datetime.fromtimestamp(reply_data['created_at'])
             }
         except Exception as e:
             print(f"Error creating reply: {e}")

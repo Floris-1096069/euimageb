@@ -45,6 +45,7 @@ def view_board(board_name):
     if not board:
         return redirect(url_for('index'))
     posts = gundb.get_posts(board_name, parent_id=None)  # Only top-level posts
+    print("Posts with replies:", posts)
     return render_template('board.html', board=board, posts=posts)
 
 @app.route('/api/b/<board_name>/posts')

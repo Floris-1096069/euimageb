@@ -8,7 +8,7 @@
 
   <!-- Reply Button and Form -->
   <div>
-    <button onclick="toggleReplyForm({{ post.id }})" class="reply-button">Reply</button>
+    <button onclick="toggleReplyForm('{{ post.id }}')" class="reply-button">Reply</button>
     <form
       id="reply-form-{{ post.id }}"
       hx-post="/api/b/{{ board.name }}/posts/{{ post.id }}/reply"
